@@ -25,13 +25,22 @@ svg {
 
 .node {
     position: absolute;
-    width: 120px;
+    min-width: 150px;
     background: #333;
     border: 1px solid #555;
     border-radius: 5px;
     padding: 10px;
     cursor: move;
     user-select: none;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+}
+
+.node input {
+    background: #222;
+    color: white;
+    border: 1px solid #555;
+    border-radius: 3px;
+    padding: 2px 5px;
 }
 
 .node-delete-btn {
