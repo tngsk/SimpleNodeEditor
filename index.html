@@ -1,0 +1,178 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Simple Node Editor</title>
+        <style>
+            body {
+                margin: 0;
+                overflow: hidden;
+                background: #222;
+                color: white;
+                font-family: sans-serif;
+            }
+            #canvas {
+                position: relative;
+                width: 100vw;
+                height: 100vh;
+            }
+            /* SVGは画面全体を覆い、マウスクリックを透過させる */
+            svg {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+            }
+            .node {
+                position: absolute;
+                width: 120px;
+                background: #333;
+                border: 1px solid #555;
+                border-radius: 5px;
+                padding: 10px;
+                cursor: move;
+                user-select: none;
+            }
+            .port {
+                width: 12px;
+                height: 12px;
+                background: #888;
+                border-radius: 50%;
+                position: absolute;
+                cursor: crosshair;
+            }
+            .port.in {
+                left: -6px;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+            .port.out {
+                right: -6px;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+            path {
+                fill: none;
+                stroke: #888;
+                stroke-width: 3;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="canvas">
+            <svg id="svg-layer"></svg>
+            <div class="node" style="left: 100px; top: 100px" id="node1">
+                Node 1
+                <div class="port out" data-node="node1" data-type="out"></div>
+            </div>
+            <div class="node" style="left: 300px; top: 150px" id="node2">
+                Node 2
+                <div class="port in" data-node="node2" data-type="in"></div>
+                <div class="port out" data-node="node2" data-type="out"></div>
+            </div>
+        </div>
+
+        <script>
+            let draggingNode = null,
+                draggingPort = null,
+                startPos = { x: 0, y: 0 },
+                lineTemp = null;
+            const svg = document.getElementById("svg-layer");
+            const connections = [];
+
+            function updateLines() {
+                svg.innerHTML = "";
+                // 確定した接続を描画
+                connections.forEach((conn) => {
+                    const fromRect = document
+                        .querySelector(`#${conn.from} .port.out`)
+                        .getBoundingClientRect();
+                    const toRect = document
+                        .querySelector(`#${conn.to} .port.in`)
+                        .getBoundingClientRect();
+                    drawLine(
+                        fromRect.left + 6,
+                        fromRect.top + 6,
+                        toRect.left + 6,
+                        toRect.top + 6,
+                    );
+                });
+                // ドラッグ中の線を描画
+                if (lineTemp)
+                    drawLine(
+                        lineTemp.x1,
+                        lineTemp.y1,
+                        lineTemp.x2,
+                        lineTemp.y2,
+                    );
+            }
+
+            function drawLine(x1, y1, x2, y2) {
+                const path = document.createElementNS(
+                    "http://www.w3.org/2000/svg",
+                    "path",
+                );
+                const cp1x = x1 + Math.abs(x2 - x1) * 0.5,
+                    cp2x = x2 - Math.abs(x2 - x1) * 0.5;
+                path.setAttribute(
+                    "d",
+                    `M ${x1} ${y1} C ${cp1x} ${y1}, ${cp2x} ${y2}, ${x2} ${y2}`,
+                );
+                svg.appendChild(path);
+            }
+
+            document.addEventListener("mousedown", (e) => {
+                if (e.target.classList.contains("node")) {
+                    draggingNode = e.target;
+                    startPos = {
+                        x: e.clientX - draggingNode.offsetLeft,
+                        y: e.clientY - draggingNode.offsetTop,
+                    };
+                } else if (
+                    e.target.classList.contains("port") &&
+                    e.target.dataset.type === "out"
+                ) {
+                    draggingPort = e.target;
+                    const rect = draggingPort.getBoundingClientRect();
+                    lineTemp = {
+                        x1: rect.left + 6,
+                        y1: rect.top + 6,
+                        x2: e.clientX,
+                        y2: e.clientY,
+                    };
+                }
+            });
+
+            document.addEventListener("mousemove", (e) => {
+                if (draggingNode) {
+                    draggingNode.style.left = e.clientX - startPos.x + "px";
+                    draggingNode.style.top = e.clientY - startPos.y + "px";
+                    updateLines();
+                } else if (draggingPort) {
+                    lineTemp.x2 = e.clientX;
+                    lineTemp.y2 = e.clientY;
+                    updateLines();
+                }
+            });
+
+            document.addEventListener("mouseup", (e) => {
+                if (
+                    draggingPort &&
+                    e.target.classList.contains("port") &&
+                    e.target.dataset.type === "in"
+                ) {
+                    connections.push({
+                        from: draggingPort.dataset.node,
+                        to: e.target.dataset.node,
+                    });
+                }
+                draggingPort = lineTemp = draggingNode = null;
+                updateLines();
+            });
+
+            updateLines();
+        </script>
+    </body>
+</html>
