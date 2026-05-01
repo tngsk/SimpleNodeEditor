@@ -424,8 +424,6 @@ class NodeEditor {
                     for (const [key, value] of Object.entries(n.parameters)) {
                         nodeState.parameters[key] = value;
                         // update UI
-                        const inputEl = nodeState.element.querySelector(`label:contains('${key}:') + input`);
-                        // Basic fallback selection since CSS :contains is not standard
                         const labels = Array.from(nodeState.element.querySelectorAll('label'));
                         const targetLabel = labels.find(l => l.innerText.startsWith(key + ":"));
                         if (targetLabel && targetLabel.nextSibling) {
