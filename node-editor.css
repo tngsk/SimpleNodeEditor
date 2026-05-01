@@ -1,0 +1,94 @@
+/* node-editor.css */
+body {
+    margin: 0;
+    overflow: hidden;
+    background: #222;
+    color: white;
+    font-family: sans-serif;
+}
+
+#canvas {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+}
+
+/* SVGは画面全体を覆い、マウスクリックを透過させる。ただしpath要素はイベントを受け取る */
+svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.node {
+    position: absolute;
+    width: 120px;
+    background: #333;
+    border: 1px solid #555;
+    border-radius: 5px;
+    padding: 10px;
+    cursor: move;
+    user-select: none;
+}
+
+.node-delete-btn {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 20px;
+    height: 20px;
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 18px;
+    text-align: center;
+    padding: 0;
+    display: none;
+}
+
+.node:hover .node-delete-btn {
+    display: block;
+}
+
+.node-delete-btn:hover {
+    background: #ff0000;
+}
+
+.port {
+    width: 12px;
+    height: 12px;
+    background: #888;
+    border-radius: 50%;
+    position: absolute;
+    cursor: crosshair;
+}
+
+.port.in {
+    left: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.port.out {
+    right: -6px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+path {
+    fill: none;
+    stroke: #888;
+    stroke-width: 3;
+    pointer-events: visibleStroke; /* パス上のクリックを検知するため */
+    cursor: pointer;
+}
+
+path:hover {
+    stroke: #ff4444; /* ホバーで削除可能であることを示す */
+}
