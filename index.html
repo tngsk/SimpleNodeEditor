@@ -6,20 +6,42 @@
         <link rel="stylesheet" href="node-editor.css" />
     </head>
     <body>
-        <div id="canvas">
+        <div id="canvas"></div>
+        <div id="palette" style="position: absolute; top: 0; left: 0; width: 200px; height: 100vh; background: #2a2a2a; border-right: 1px solid #555; z-index: 10; padding: 10px; box-sizing: border-box; overflow-y: auto;">
+            <h3 style="margin-top: 0;">Nodes</h3>
+            <div id="palette-content"></div>
+        </div>
+
+        <div id="toolbar" style="position: absolute; top: 10px; right: 10px; z-index: 10;">
+            <button id="btn-export">Export JSON</button>
+            <button id="btn-import">Import JSON</button>
         </div>
 
         <script src="node-editor.js"></script>
         <script>
-            // Initialize the NodeEditor library
-            const editor = new NodeEditor("canvas");
+            (async () => {
+                const response = await fetch('schema.json');
+                const schema = await response.json();
 
-            // Replicate the original initial state
-            editor.addNode("node1", "Node 1", 100, 100, { in: false, out: true });
-            editor.addNode("node2", "Node 2", 300, 150, { in: true, out: true });
+                // Initialize the NodeEditor library with schema
+                const editor = new NodeEditor("canvas", schema);
 
-            // Ensure the lines update properly on load
-            editor.updateLines();
+                // Expose to window for debugging if needed
+                window.editor = editor;
+
+                document.getElementById('btn-export').onclick = () => {
+                    const ir = editor.exportIR();
+                    console.log(ir);
+                    alert("Exported to console:\n\n" + ir);
+                };
+
+                document.getElementById('btn-import').onclick = () => {
+                    const ir = prompt("Paste JSON IR:");
+                    if (ir) {
+                        editor.importIR(ir);
+                    }
+                };
+            })();
         </script>
     </body>
 </html>

@@ -1,0 +1,50 @@
+{
+  "categories": [
+    {
+      "name": "I/O",
+      "nodes": [
+        {
+          "type": "InputNode",
+          "name": "Input",
+          "inputs": [],
+          "outputs": [{"name": "out", "type": "Any"}],
+          "parameters": [
+            {"name": "file", "uiType": "text", "default": ""}
+          ]
+        },
+        {
+          "type": "OutputNode",
+          "name": "Output",
+          "inputs": [{"name": "in", "type": "Any"}],
+          "outputs": [],
+          "parameters": [
+            {"name": "file", "uiType": "text", "default": ""}
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Processing",
+      "nodes": [
+        {
+          "type": "NormalizeNode",
+          "name": "Normalize",
+          "inputs": [{"name": "in", "type": "Audio"}],
+          "outputs": [{"name": "out", "type": "Audio"}],
+          "parameters": [
+            {"name": "target_db", "uiType": "number", "default": -14.0}
+          ]
+        },
+        {
+          "type": "SpectrumNode",
+          "name": "Spectrum",
+          "inputs": [{"name": "in", "type": "Audio"}],
+          "outputs": [{"name": "out", "type": "Image"}],
+          "parameters": [
+            {"name": "fft_size", "uiType": "number", "default": 2048}
+          ]
+        }
+      ]
+    }
+  ]
+}
