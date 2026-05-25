@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>State Export/Import Template</title>
+    <style>
+        body { font-family: sans-serif; background: #222; color: #ddd; padding: 20px; }
+        .controls { margin-bottom: 20px; }
+        button { padding: 8px 16px; background: #007acc; color: white; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px; }
+        button:hover { background: #005f9e; }
+        textarea { width: 100%; height: 200px; background: #111; color: #0f0; font-family: monospace; padding: 10px; border: 1px solid #444; box-sizing: border-box; }
+        .editor { background: #333; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h2>App State JSON Export/Import</h2>
+
+    <div class="editor">
+        <h3>Simple App State</h3>
+        <p>Title: <input type="text" id="app-title" value="My Project"></p>
+        <p>Counter: <span id="app-counter">0</span> <button onclick="incrementCounter()" style="padding:4px 8px;">+1</button></p>
+    </div>
+
+    <div class="controls">
+        <button onclick="exportState()">⬇️ Export to JSON</button>
+        <button onclick="importState()">⬆️ Import from JSON</button>
+    </div>
+
+    <textarea id="json-io" placeholder="JSON data will appear here..."></textarea>
+
+    <script>
+        // アプリケーションの中心となる状態（State）
+        let appState = {
+            title: "My Project",
+            counter: 0,
+            timestamp: Date.now()
+        };
+
+        const titleInput = document.getElementById('app-title');
+        const counterDisplay = document.getElementById('app-counter');
+        const jsonIo = document.getElementById('json-io');
+
+        // UIの入力をStateに反映
+        titleInput.addEventListener('input', (e) => {
+            appState.title = e.target.value;
+        });
+
+        function incrementCounter() {
+            appState.counter++;
+            updateUI();
+        }
+
+        // StateをUIに反映（同期）
+        function updateUI() {
+            titleInput.value = appState.title;
+            counterDisplay.innerText = appState.counter;
+        }
+
+        // JSONとしてエクスポート
+        function exportState() {
+            appState.timestamp = Date.now(); // エクスポート時のタイムスタンプを更新
+            const ir = JSON.stringify(appState, null, 2);
+            jsonIo.value = ir;
+        }
+
+        // JSONからインポート
+        function importState() {
+            try {
+                const jsonString = jsonIo.value;
+                if (!jsonString.trim()) {
+                    alert("Please enter JSON data.");
+                    return;
+                }
+
+                const parsedState = JSON.parse(jsonString);
+
+                // 簡単なバリデーション
+                if (typeof parsedState.title === 'string' && typeof parsedState.counter === 'number') {
+                    appState = parsedState;
+                    updateUI(); // 状態を反映
+                    alert("Import successful!");
+                } else {
+                    alert("Invalid JSON schema: missing 'title' or 'counter'.");
+                }
+            } catch (e) {
+                alert("Failed to parse JSON. Please check the syntax.");
+                console.error(e);
+            }
+        }
+
+        // 初期化
+        updateUI();
+    </script>
+</body>
+</html>
