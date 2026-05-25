@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Drag and Drop Template</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #222; font-family: sans-serif; color: white; }
+        .canvas { position: relative; width: 100vw; height: 100vh; }
+        .node {
+            position: absolute; width: 120px; height: 60px; background: #444;
+            border: 2px solid #666; border-radius: 8px; cursor: grab; user-select: none;
+            display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        .node:active { cursor: grabbing; border-color: #888; }
+    </style>
+</head>
+<body>
+    <div class="canvas" id="canvas">
+        <div class="node" style="left: 50px; top: 50px;">Node A</div>
+        <div class="node" style="left: 250px; top: 100px;">Node B</div>
+    </div>
+
+    <script>
+        // シンプルなドラッグ＆ドロップ実装
+        const canvas = document.getElementById('canvas');
+        let draggingNode = null;
+        let startPos = { x: 0, y: 0 };
+
+        document.addEventListener('mousedown', (e) => {
+            const node = e.target.closest('.node');
+            if (node) {
+                draggingNode = node;
+                // マウスダウン時の要素内の相対位置を記録
+                startPos = {
+                    x: e.clientX - draggingNode.offsetLeft,
+                    y: e.clientY - draggingNode.offsetTop
+                };
+            }
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (draggingNode) {
+                // 新しい位置を計算
+                const newX = e.clientX - startPos.x;
+                const newY = e.clientY - startPos.y;
+                draggingNode.style.left = newX + 'px';
+                draggingNode.style.top = newY + 'px';
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            draggingNode = null;
+        });
+    </script>
+</body>
+</html>

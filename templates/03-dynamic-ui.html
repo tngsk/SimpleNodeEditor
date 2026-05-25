@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>Dynamic Schema UI Template</title>
+    <style>
+        body { font-family: sans-serif; background: #222; color: #ddd; padding: 20px; }
+        .node-panel { background: #333; padding: 15px; border-radius: 8px; width: 300px; border: 1px solid #555; }
+        .form-row { margin-bottom: 12px; }
+        label { display: block; font-size: 12px; color: #aaa; margin-bottom: 4px; }
+        input, select {
+            width: 100%; box-sizing: border-box; padding: 6px;
+            background: #111; color: white; border: 1px solid #444; border-radius: 4px;
+        }
+        .state-output { margin-top: 20px; background: #111; padding: 10px; border-radius: 4px; font-family: monospace; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h2>Dynamic UI Generation</h2>
+    <div class="node-panel" id="panel">
+        <h3 style="margin-top:0;" id="node-title">Node Title</h3>
+        <div id="dynamic-params"></div>
+    </div>
+
+    <div class="state-output" id="state-output"></div>
+
+    <script>
+        // スキーマ定義の例
+        const schema = {
+            type: "HttpRequest",
+            name: "HTTP Request",
+            parameters: [
+                { name: "url", type: "string", default: "https://api.example.com/data" },
+                { name: "method", type: "enum", values: ["GET", "POST", "PUT", "DELETE"], default: "GET" },
+                { name: "timeout", type: "number", default: 5000 }
+            ]
+        };
+
+        // アプリケーションの状態保持
+        const nodeState = {
+            type: schema.type,
+            parameters: {}
+        };
+
+        const paramsContainer = document.getElementById('dynamic-params');
+        const stateOutput = document.getElementById('state-output');
+        document.getElementById('node-title').innerText = schema.name;
+
+        function renderOutput() {
+            stateOutput.innerText = "Current State:\n" + JSON.stringify(nodeState, null, 2);
+        }
+
+        // スキーマからUI要素を動的に生成
+        schema.parameters.forEach(param => {
+            // 初期値を状態にセット
+            nodeState.parameters[param.name] = param.default;
+
+            const row = document.createElement('div');
+            row.className = 'form-row';
+
+            const label = document.createElement('label');
+            label.innerText = param.name;
+            row.appendChild(label);
+
+            let inputEl;
+
+            // 型に応じた入力要素の生成
+            if (param.type === 'enum' && param.values) {
+                inputEl = document.createElement('select');
+                param.values.forEach(val => {
+                    const opt = document.createElement('option');
+                    opt.value = val;
+                    opt.innerText = val;
+                    if (val === param.default) opt.selected = true;
+                    inputEl.appendChild(opt);
+                });
+            } else if (param.type === 'number') {
+                inputEl = document.createElement('input');
+                inputEl.type = 'number';
+                inputEl.value = param.default;
+            } else {
+                inputEl = document.createElement('input');
+                inputEl.type = 'text';
+                inputEl.value = param.default;
+            }
+
+            // 値の変更をStateに反映
+            inputEl.addEventListener('change', (e) => {
+                let val = e.target.value;
+                if (param.type === 'number') val = Number(val);
+                nodeState.parameters[param.name] = val;
+                renderOutput();
+            });
+
+            row.appendChild(inputEl);
+            paramsContainer.appendChild(row);
+        });
+
+        // 初回描画
+        renderOutput();
+    </script>
+</body>
+</html>
